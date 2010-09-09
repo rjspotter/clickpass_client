@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Example</title>
+  </head>
+  <body>
+    <script type="text/javascript" src="./clickpass_client.js"></script>
+    <a href="#start" id="popper">Login Using Clickpass</a>
+    <script type="text/javascript">
+      ClickpassClient("foo",{
+        uiElement : 'popper',
+        onSuccess : function () {alert('success');},
+        onFailure : function () {alert('fail!');}
+      })
+    </script>
+  </body>
+</html>

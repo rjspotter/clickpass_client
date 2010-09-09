@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>POPUP</title>
+  </head>
+  <body>
+    <a href="#" id="doitup">Continue</a>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="#" id="canceler">Cancel</a>
+    <script type="text/javascript">
+      document.getElementById('doitup').onclick = function () {
+        var d = window.opener.document,
+            s = d.createElement('script');
+
+        s.setAttribute("type","application/json");
+        s.setAttribute("id","clickpass_data_store");
+        s.appendChild(d.createTextNode('{"foo":"bar"}'))
+        window.opener.document.body.appendChild(s);
+        window.opener.location.hash = 'finished';
+        window.close();
+      };
+      document.getElementById('canceler').onclick = function () {
+        window.opener.location.hash = 'cancelled';
+        window.close();
+      };
+    </script>
+  </body>
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Requirements -->
+    <script src="deps/jquery-1.2.6.js"></script>
+    <script src="deps/jquery.fn.js"></script>
+    <script src="deps/jquery.print.js"></script>
+    <script src="deps/screw.builder.js"></script>
+    <script src="deps/screw.matchers.js"></script>
+    <script src="deps/screw.events.js"></script>
+    <script src="deps/screw.behaviors.js"></script>
+    
+    <!-- Configurations -->
+    <script src="spec_helper.js"></script>
+    <script src="matchers/have.js"></script>
+    
+    <!-- Stylin -->
+    <link rel="stylesheet" href="deps/screw.css">
+
+    <!-- CUT (Code Under Test) -->
+    <script type="text/javascript" src="../clickpass_client.js"></script>
+
+    <!-- Specs -->
+    <script type="text/javascript" src="ui_elements_spec.js"></script>
+  </head>
+  <body>
+    <div id="dom_test" style="position: absolute; left: -9999"></div>
+  </body>
+</html>
