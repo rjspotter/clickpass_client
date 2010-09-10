@@ -7,10 +7,11 @@
     <script type="text/javascript" src="./clickpass_client.js"></script>
     <a href="#start" id="popper">Login Using Clickpass</a>
     <script type="text/javascript">
-      ClickpassClient("foo",{
+      ClickpassClient("4c86e8c8e3af080b44000002",{
         uiElement : 'popper',
         onSuccess : function () {alert('success');},
-        onFailure : function () {alert('fail!');}
+        onFailure : function () {alert('fail!');},
+        cpEnvType : 'dev'
       })
     </script>
   </body>
