@@ -9,7 +9,10 @@
     <script type="text/javascript">
       ClickpassClient("4c86e8c8e3af080b44000002",{
         uiElement : 'popper',
-        onSuccess : function () {alert('success');},
+        onSuccess : function (attributes) {
+                                  window.__foo = attributes;
+                                  alert('success! Hello ' + attributes.nickname);
+                                },
         onFailure : function () {alert('fail!');},
         cpEnvType : 'dev'
       })

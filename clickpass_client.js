@@ -15,8 +15,6 @@ function ClickpassClient() {
   var rpid   = arguments[0],
       config = arguments[1];
 
-  function n0p () {}
-
   function isFun (a) {return typeof a === 'function';}
 
   function hashIs (check) {return window.location.hash === check;}
@@ -28,6 +26,22 @@ function ClickpassClient() {
            'http://next.clickpass.com/server?m=s&cp.rpid=' + rpid ;
   }
 
+  function sregAttributes () {
+    function cdr (arr) {return arr.slice(1,arr.length); }
+    function fG (k) {return window.__cp_data['openid.sreg.' + k];} // fromGlobal
+    function aD (col,k,v) {col[k] = v ; return col;}               // appenD
+
+    function extract (lst, col) {
+       return lst[0] === undefined ? 
+                col :
+              fG(lst[0]) === undefined ? 
+                extract(cdr(lst), col) :
+              extract(cdr(lst), aD(col,lst[0],unescape(fG(lst[0]))));
+    }
+
+    return extract(['nickname','fullname','email','dob','gender','timezone','language','country','postcode'],{});
+  }
+
 
   (function () {
     var ele = document.getElementById(config.uiElement);
@@ -37,7 +51,7 @@ function ClickpassClient() {
       if (window.focus) {authPop.focus();}
       window.onfocus = function () {
         if ( hashIs('#finished') && isFun(config.onSuccess)) { 
-          config.onSuccess();
+          config.onSuccess(sregAttributes());
         } else if ( isFun(config.onFailure) ) {
           config.onFailure();
         }
