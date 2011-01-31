@@ -10,10 +10,18 @@
 window.ClickpassClient = () ->
 
   # parse out the arguments.  having an explicit function signature ala
-  # ClickpassClient(rpid,config) would lock us in.  Taking arbitrary args and parsing
+  # ClickpassClient(foo, bar, config) would lock us in.  Taking arbitrary args and parsing
   # them out is a lot more flexible
-  rpid   = arguments[0]
-  config = arguments[1]
+  config = arguments[0]
+
+  # We want to generate a couple of variable as well namely our salt, the encrypted salt
+  # to pass to the server, and a check function for verifying data later.
+  encrypt = (str) ->
+    rsa = new RSAKey()
+    rsa.setPublic(config.key, "3")
+    return rsa.encrypt(str)
+  salt          = config.uuid || uuid()
+  cryptedSalt = encrypt(salt)
 
   # Later on were going to want to be able to branch code or reject input based on
   # it's type or value.  So we need to know if it's a function before calling it.
@@ -31,52 +39,52 @@ window.ClickpassClient = () ->
   # version to be running we use a short reference url mapper (opUrl => OpenID Provider URL).
   opUrl = () ->
     return switch config.cpEnvType
-      when 'next'    then 'http://next.clickpass.com/server?m=s&cp.rpid=' + rpid
-      when 'current' then 'http://next.clickpass.com/server?m=s&cp.rpid=' + rpid
-      when 'dev'     then 'http://dev.clickpass.com/server?m=s&cp.rpid=' + rpid
-      else 'http://next.clickpass.com/server?m=s&cp.rpid=' + rpid
+      when 'next'    then 'http://next.clickpass.com/server?m=s&cp.rpid=' + config.id
+      when 'current' then 'http://next.clickpass.com/server?m=s&cp.rpid=' + config.id
+      when 'dev'     then 'http://dev.clickpass.com:3000/endpoint?cp.id=' + config.id + '&cp.csec=' + cryptedSalt
+      else 'http://next.clickpass.com/server?m=s&cp.rpid=' + config.id
 
+  # Part of the beauty of Clickpass compared to other third party providers is that
+  # user data is provided at login time updated during each login
+  # no extra api call required.
+  clickpassAttributes = () ->
+    stripJunk = (str) ->
+      if (str[str.length - 1] == "}")
+         return str
+      else
+         return stripJunk(str.slice(0,-1))
+    isValidData = () ->
+      data = stripJunk(decode64(window.__cp_data['cp.perdata']))
+      hmac = Crypto.HMAC(Crypto.SHA256, data, salt)
+      return window.__cp_data['cp.sig'] == hmac
+    if isValidData()
+      return eval "(" + stripJunk(decode64(window.__cp_data['cp.perdata'])) + ")"
+    else
+      data = stripJunk(decode64(window.__cp_data['cp.perdata']))
+      alert("hmac("+ salt + " , " + data + ') -> ' + Crypto.HMAC(Crypto.SHA256, data, salt) + ' != ' + window.__cp_data['cp.sig'])
+      alert('failed verification')
 
-  sregAttributes = () ->
-    cdr = (arr) ->
-      return arr.slice(1,arr.length)
-    # fromGlobal returns an sreg attribute from the Clickpass Data stored
-    fG = (k) ->
-      return window.__cp_data['openid.sreg.' + k]
-    # appenD to a passed collection
-    aD = (col,k,v) ->
-      col[k] = v
-      return col
-
-    extract = (lst, col) ->
-       return if lst[0] == undefined then col else
-              if fG(lst[0]) == undefined
-                extract(cdr(lst), col)
-              else
-                extract(cdr(lst), aD(col,lst[0],unescape(fG(lst[0]))))
-
-
-    return extract([
-      'nickname',
-      'fullname',
-      'email',
-      'dob',
-      'gender',
-      'timezone',
-      'language',
-      'country',
-      'postcode'],
-      {}
-    )
-
+  # On to the subject of user experience.
+  # Get the element that clicking on will start the process of logging in.
   ele = document.getElementById(config.uiElement)
+  # Then when it's clicked....
   ele.onclick = () ->
+    console.log(opUrl())
+    # Grab the current hash so we can return it to it's state when we're done.
     oldHash = window.location.hash
+    # Open up a popup window for us to use.
     authPop = window.open(opUrl(), 'authPop', 'width="450",height="500",location="true"')
     if (window.focus) then authPop.focus()
+    # When we get focus back from Clickpass.com we call the success callback with the sreg data from above
+    # or we call the failure callback.  Finally we cleanup and wash our hands.
     window.onfocus = () ->
-      if ( hashIs('#finished') && isFun(config.onSuccess))
-        config.onSuccess(sregAttributes())
+      if ( hashIs('#finished') && clickpassAttributes())
+        createCookie('cpdata', clickpassAttributes())
+        createCookie('cprawdata', window.__cp_data['cp.perdata'])
+        createCookie('cpsig', window.__cp_data['cp.sig'])
+        createCookie('cpsecsig', window.__cp_data['cp.secsig'])
+        if isFun(config.onSuccess)
+          config.onSuccess(clickpassAttributes())
       else if ( isFun(config.onFailure) )
         config.onFailure()
       window.location.hash = oldHash

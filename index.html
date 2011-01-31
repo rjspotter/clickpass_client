@@ -4,14 +4,26 @@
     <title>Example</title>
   </head>
   <body>
+    <script type="text/javascript" src="http://crypto-js.googlecode.com/files/2.0.0-crypto-sha256.js"></script>
+    <script type="text/javascript" src="http://crypto-js.googlecode.com/files/2.0.0-hmac-min.js"></script>
+    <script type="text/javascript" src="./lib/jsbn.js"></script>
+    <script type="text/javascript" src="./lib/prng4.js"></script>
+    <script type="text/javascript" src="./lib/rng.js"></script>
+    <script type="text/javascript" src="./lib/rsa.js"></script>
+    <script type="text/javascript" src="./lib/base64.js"></script>
+    <script type="text/javascript" src="./lib/sha256.js"></script>
+    <script type="text/javascript" src="./lib/uuid.js"></script>
+    <script type="text/javascript" src="./lib/cookies.js"></script>
     <script type="text/javascript" src="./clickpass_client.js"></script>
+    <script type="text/javascript" src="https://getfirebug.com/firebug-lite.js"></script>
     <a href="#start" id="popper">Login Using Clickpass</a>
     <script type="text/javascript">
-      ClickpassClient("4cd9d01f795d62483c000007",{
+      ClickpassClient({
+        id : "4d3e452de3af0810a7000044",
+        key : "c1621bbd4a410f930b81a1f6a052f0831ace491be2868cda7b7284faefcfe2938ead10342a3b80eb0bf80c4da708b2f07a18489ac58bb80a30e53fabf73b29732ea71201bb22ff01d3c4825b251049a66de88870f329a8b3cf8b75852100755ba3c5e4c6e9ebef082b3d9288be957f46adba47fbc18df0d2fbf546340582ae07",
         uiElement : 'popper',
         onSuccess : function (attributes) {
-                                  window.__foo = attributes;
-                                  alert('success! Hello ' + attributes.nickname);
+                                  alert('success! Hello ' + attributes['nickname']);
                                 },
         onFailure : function () {alert('fail!');},
         cpEnvType : 'dev'
